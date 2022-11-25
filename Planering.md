@@ -1,0 +1,1 @@
+Denna lektion har jag skissat fram fuktioner och geometiobjekt jag vill skapa samt börjat förlja en tutorial
