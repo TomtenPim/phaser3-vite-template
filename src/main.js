@@ -1,7 +1,7 @@
 import Phaser, { Game } from 'phaser'
 
 import HelloWorldScene from './HelloWorldScene'
-import GameScene from './GameScene'
+import GameScene from './scene/GameScene'
 
 const config = {
 	type: Phaser.AUTO,
