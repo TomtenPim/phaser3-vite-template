@@ -1,0 +1,12 @@
+{
+    "resources": [
+      "./assets/audio/MC10_OST.mp3"
+    ],
+    "spritemap": {
+      "music": {
+        "start": 0,
+        "end": 543,
+        "loop": true
+      }
+    }
+  }

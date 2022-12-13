@@ -28,7 +28,9 @@ Nästa gång ska jag göra klart dashen, färdigställa en bana och kanske skapa
 
 ---------------------------------------------------------------------------------------------------------------
 
-Tisdag 13/12
+Tisdag 13/12 Idag har jag lagt in fler ljud till bland annat dashan, påbörjat arbete med musik, lagt in en omstart funktion då man dör 
+
+Nästa gång ska jag färdigställa platforms- och stjärnlayout, konst, Seeker om jag hinner (förmodligen inte) och skriva PM 
 
 ---------------------------------------------------------------------------------------------------------------
 
@@ -51,5 +53,5 @@ Jag har primärt följt:
 
 
 
-Har utöver det använt https://phaser.io/examples/v3 för hjälp med delar, starkt rekomenderat att man kollar in det om man stöter på problem.
+Har utöver det använt https://phaser.io/examples/v3 för hjälp med delar, starkt rekomenderat att man kollar in det om man stöter på
 

@@ -49,7 +49,7 @@ export default class GameScene extends Phaser.Scene
 	{
         this.load.image(SKY_KEY, 'assets/sky.png')
 		this.load.image(GROUND_KEY, 'assets/platform.png')
-		this.load.image(GROUNDMAIN_KEY,'assets/platform.png')
+		this.load.image(GROUNDMAIN_KEY,'assets/platformStor.png')
         this.load.image(STAR_KEY, 'assets/star.png')
         this.load.image(BOMB_KEY, 'assets/bomb.png')
 
@@ -63,15 +63,22 @@ export default class GameScene extends Phaser.Scene
 			'assets/audio/fx_mixdown.json', 
 			[
             'assets/audio/fx_mixdown.ogg',
-            'assets/audio/fx_mixdown.mp3'
+            'assets/audio/fx_mixdown.mp3',
         ]);  
 
+		this.load.audioSprite(
+			'music',
+			'assets/audio/MC10_OST.json', 
+			[
+			'assets/audio/MC10_OST.mp3'
+		])
+		
 	}
 
 	//Skapar objekt som visas och kan interageras med
 	create()
 	{
-		
+		this.sound.playAudioSprite('music', 'music')
 
 		this.cameras.main.setBounds(-1200, 0, 3200, 600);
         this.physics.world.setBounds(-1200, -100, 3200, 800);
@@ -157,7 +164,7 @@ export default class GameScene extends Phaser.Scene
 	{
 		const mainPlatform = this.physics.add.staticGroup()
 
-		mainPlatform.create(400, 568, GROUNDMAIN_KEY).setScale(2).refreshBody()
+		mainPlatform.create(400, 568, GROUNDMAIN_KEY).setScale(1).refreshBody()
 
 		return mainPlatform
 	}
@@ -242,6 +249,7 @@ export default class GameScene extends Phaser.Scene
 			//Kollar om du int hört GameOver ljudet
 			if (alive == 1){
 			//Spelar upp GameOver ljudet och visar GameOver meddelandet
+			this.sound.removeByKey('music');
 			this.sound.playAudioSprite('sfx','death')
 			textGameOver = this.add.text(this.player.x - 145, 150, 'You got the ' + this.scoreLabel.text + '\n \n \n  Press R to Reset', { fontSize: '25px'});
 			}
