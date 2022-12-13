@@ -3,6 +3,7 @@ import ScoreLabel from '../ui/ScoreLabel'
 import BombSpawner from './BombSpawner'
 
 const GROUND_KEY = 'ground'
+const GROUNDMAIN_KEY = 'groundMain'
 const DUDE_KEY = 'dude'
 const STAR_KEY = 'star'
 const BOMB_KEY = 'bomb'
@@ -12,12 +13,14 @@ var velocityX = 0;
 var accelerationX = 0;
 var velocityY = 0;
 var accelerationY = 0;
-const gravity = 20;
 var pickupVelocityX = 0;
 var pickupVelocityY = 0;
 var pickupAccelerationX = 0;
 var pickupAccelerationY = 0;
 var dash = 1;
+var alive = 1;
+
+const gravity = 20;
 
 var text1;
 var text1ball;
@@ -35,15 +38,16 @@ export default class GameScene extends Phaser.Scene
 		this.stars = undefined
 		this.bombSpawner = undefined
 		this.sky = undefined
-		this.mouse = undefined
 
 		this.gameOver = false
 	}
 
+	//Laddar in bild, ljud och spelaren
 	preload()
 	{
         this.load.image(SKY_KEY, 'assets/sky.png')
 		this.load.image(GROUND_KEY, 'assets/platform.png')
+		this.load.image(GROUNDMAIN_KEY,'assets/platform.png')
         this.load.image(STAR_KEY, 'assets/star.png')
         this.load.image(BOMB_KEY, 'assets/bomb.png')
 
@@ -52,36 +56,48 @@ export default class GameScene extends Phaser.Scene
 			  {frameWidth: 32, frameHeight:31 }
 		)
 
+		this.load.audioSprite(
+			'sfx', 
+			'assets/audio/fx_mixdown.json', 
+			[
+            'assets/audio/fx_mixdown.ogg',
+            'assets/audio/fx_mixdown.mp3'
+        ]);  
+
 	}
 
+	//Skapar objekt som visas och kan interageras med
 	create()
 	{
 		
 
-		this.cameras.main.setBounds(-800, 0, 2400, 600);
-        this.physics.world.setBounds(-800, -100, 2400, 800);
+		this.cameras.main.setBounds(-1200, 0, 3200, 600);
+        this.physics.world.setBounds(-1200, -100, 3200, 800);
 
-		this.add.image(400, 300, SKY_KEY)
-		this.add.image(1200, 300, SKY_KEY)
-
+		this.createSky(-1200, 300)
 		this.createSky(-400, 300)
 		this.createSky(400, 300)
 		this.createSky(1200, 300)
+		this.createSky(2000, 300)
+
 
 		text1 = this.add.text(10, 10, '');
 		text1ball = this.add.text(500, 10, '');
         
         const platforms = this.createPlatforms()
+		const mainPlatform = this.createMainPlatform()
 		this.player = this.createPlayer()
 		this.stars = this.createStars()
 
-		this.scoreLabel = this.createScoreLabel(16, 16, 0)
+		this.scoreLabel = this.createScoreLabel(16, 16, 0).setScrollFactor(0);
 
 		this.bombSpawner = new BombSpawner(this, BOMB_KEY)
 		const bombsGroup = this.bombSpawner.group
 
 		this.physics.add.collider(this.player, platforms)
 		this.physics.add.collider(this.stars, platforms)
+		this.physics.add.collider(this.player, mainPlatform)
+		this.physics.add.collider(this.stars, mainPlatform)
 		this.physics.add.collider(bombsGroup, platforms)
 		this.physics.add.collider(this.player, bombsGroup, this.hitBomb, null, this)
 		
@@ -111,6 +127,8 @@ export default class GameScene extends Phaser.Scene
 			})
 		}
 
+		this.sound.playAudioSprite('sfx', 'ping');
+
 		this.bombSpawner.spawn(player.x)
 
 		pickupAccelerationX = accelerationX
@@ -122,8 +140,6 @@ export default class GameScene extends Phaser.Scene
     createPlatforms()
     {
         const platforms = this.physics.add.staticGroup()
-
-		platforms.create(400, 568, GROUND_KEY).setScale(2).refreshBody()
 	
 		platforms.create(600, 400, GROUND_KEY)
 		platforms.create(50, 250, GROUND_KEY)
@@ -131,6 +147,15 @@ export default class GameScene extends Phaser.Scene
 
         return platforms
     }
+
+	createMainPlatform()
+	{
+		const mainPlatform = this.physics.add.staticGroup()
+
+		mainPlatform.create(400, 568, GROUNDMAIN_KEY).setScale(2).refreshBody()
+
+		return mainPlatform
+	}
 
 	createSky(x,y){
 		const sky = this.add.image(x, y, SKY_KEY)
@@ -182,7 +207,7 @@ export default class GameScene extends Phaser.Scene
 
 	createScoreLabel(x, y, score)
 	{
-		const style = { fontSize: '32px', fill: '#000' }
+		const style = { fontSize: '32px', fill: '#FFF' }
 		const label = new ScoreLabel(this, x, y, score, style)
 
 		this.add.existing(label)
@@ -190,58 +215,85 @@ export default class GameScene extends Phaser.Scene
 		return label
 	}
 
-    
+    // Updaterar speldkärmen
     update()
 	{
 		var pointer = this.input.activePointer;
 
-		if (this.gameOver){
-			return
-		}
-
-		//Kollar om du fallit av banan
+		//Kolla om du fallit av banan
 		if (this.player.y > 600){
 
 			this.physics.pause()
 
-			this.sky.setTint(0xff0000)
+			this.player.setTint(0xff0000)
 
 			this.player.anims.play('die')
 
 			this.gameOver = true
 		}
 
+		//Kollar om du fått en game over
+		if (this.gameOver){
+			//Kollar om du int hört GameOver ljudet
+			if (alive == 1){
+			//Spelar upp GameOver ljudet
+			this.sound.playAudioSprite('sfx','death')
+			}
+			//Förhindrar ljudet från att spela flera gånger
+			alive = 0
+			return
+		}
+
+		//Får dig att wrapa runt banan om du går för långt höger
+		if(this.player.x > 1600){
+			this.player.x = -800
+		}
+
+		//Får dig att wrapa runt banan om du går för långt vänster
+		if(this.player.x < -800){
+			this.player.x = 1600
+		}
+
+		//Kollar om du vänsterklickar, är i luften och har en dash att använda
 		if (dash == 1 && pointer.isDown && this.player.body.touching.down == false){
-			var angle = (pointer.worldY - this.player.y) / (pointer.worldX - this.player.x)
 
-			velocityX = 500* Math.cos(angle)
-			velocityY = 500* Math.sin(angle)
-						
-
+			//Dasha mot muspekarens nuvarande position sett till bollens
+			velocityX = 2*(pointer.worldX - this.player.x)
+		 	velocityY = 2*(pointer.worldY - this.player.y)
+			
+			//Flyttar dig vågrätt och lodrätt
 			this.player.setVelocityX(velocityX)
-			this.player.setVelocityY(velocityY)
+		 	this.player.setVelocityY(velocityY)
 
+			//Stoppar dig från att dasha flera gånger i luften
 			dash = 0
 		}
 
+		//Kollar om du håller ner vänster
 		if (this.cursors.left.isDown)
 		{
+			//Accelererar dig
 			accelerationX = -15
 			if(velocityX > -300){velocityX += accelerationX};
 			
 			this.player.setVelocityX(velocityX)
 			this.player.anims.play('left', true)
 		}
+		//Kollar om du håller ner höger
 		else if (this.cursors.right.isDown)
 		{
+			//Accelererar dig
 			accelerationX = 15
 			if(velocityX < 300){velocityX += accelerationX};
 
+			//Flyttar dig vågrätt
 			this.player.setVelocityX(velocityX)
 			this.player.anims.play('right', true)
 		}
+		// Kollar om varken höger eller vänster är nedtryckt
 		else
 		{
+			//Flyttar dig vågrätt
 			this.player.setVelocityX(velocityX)
 			this.player.anims.pause()
 		}
@@ -251,6 +303,7 @@ export default class GameScene extends Phaser.Scene
 			accelerationX = pickupAccelerationX
 			velocityX = pickupVelocityX
 
+			//Fixar siffror för kollistionscheck
 			pickupAccelerationX = 0
 			pickupVelocityX = 0
 		}
@@ -259,12 +312,14 @@ export default class GameScene extends Phaser.Scene
 		//Kollar om du står på marken
 		if (this.player.body.touching.down){
 
+			//Låter dig dasha igen
 			dash = 1
 
 			//Stoppar dig från att falla
 			accelerationY = pickupAccelerationY
 			velocityY = pickupVelocityY
 
+			//Fixar siffror för kollistionscheck
 			pickupAccelerationY = 0
 			pickupVelocityY = 0
 			
@@ -277,10 +332,12 @@ export default class GameScene extends Phaser.Scene
 				if (velocityX < 0){accelerationX = 7}
 				if (velocityX > 0){accelerationX = -7}
 
+				//Accelererar dig
 				velocityX += accelerationX
 				this.player.setVelocityX(velocityX)
 
-				if (velocityX < 5 && velocityX > -5){
+				//Stannar dig om du rör dig långsamt
+				if (velocityX < 3 && velocityX > -3){
 					accelerationX = 0 
 					velocityX = 0
 				}
@@ -329,19 +386,21 @@ export default class GameScene extends Phaser.Scene
 			this.player.setVelocityX(velocityX)
 		}
 
-
+		//Visar musens possition
 		text1.setText([
 			'x: ' + pointer.worldX,
 			'y: ' + pointer.worldY,
 			'isDown: ' + pointer.isDown
 		]);
 
+		//Visar bollens possition
 		text1ball.setText([
 			'x: ' + this.player.x,
 			'y: ' + this.player.y,
 		]);
 	}
 
+	//Avgör vad som sker när man träffar en bomb
 	hitBomb(player, bomb)
 	{
 		this.physics.pause()

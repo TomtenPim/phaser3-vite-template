@@ -26,4 +26,9 @@ export default class ScoreLabel extends Phaser.GameObjects.Text
 	{
 		this.setText(formatScore(this.score))
 	}
+
+	setPositionTest()
+	{
+	
+	}
 }
