@@ -37,3 +37,19 @@ Fredag 16/12 PM
 ---------------------------------------------------------------------------------------------------------------
 
 Tisdag 20/12 Redovisning
+
+
+todo: 
+1. seekers
+2. mainplatform sprite
+3. final platform layout
+
+
+
+Tutorials:
+Jag har primärt följt:
+
+
+
+Har utöver det använt https://phaser.io/examples/v3 för hjälp med delar, starkt rekomenderat att man kollar in det om man stöter på problem.
+

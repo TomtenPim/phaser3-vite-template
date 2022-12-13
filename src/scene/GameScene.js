@@ -7,6 +7,7 @@ const GROUNDMAIN_KEY = 'groundMain'
 const DUDE_KEY = 'dude'
 const STAR_KEY = 'star'
 const BOMB_KEY = 'bomb'
+const SEEKER_KEY = 'seeker'
 const SKY_KEY = 'sky'
 
 var velocityX = 0;
@@ -24,7 +25,7 @@ const gravity = 20;
 
 var text1;
 var text1ball;
-
+var textGameOver;
 
 export default class GameScene extends Phaser.Scene
 {
@@ -37,6 +38,7 @@ export default class GameScene extends Phaser.Scene
 		this.scoreLabel = undefined
 		this.stars = undefined
 		this.bombSpawner = undefined
+		this.seekerSpawner = undefined
 		this.sky = undefined
 
 		this.gameOver = false
@@ -83,6 +85,7 @@ export default class GameScene extends Phaser.Scene
 
 		text1 = this.add.text(10, 10, '');
 		text1ball = this.add.text(500, 10, '');
+		textGameOver;
         
         const platforms = this.createPlatforms()
 		const mainPlatform = this.createMainPlatform()
@@ -99,6 +102,7 @@ export default class GameScene extends Phaser.Scene
 		this.physics.add.collider(this.player, mainPlatform)
 		this.physics.add.collider(this.stars, mainPlatform)
 		this.physics.add.collider(bombsGroup, platforms)
+		this.physics.add.collider(bombsGroup, mainPlatform)
 		this.physics.add.collider(this.player, bombsGroup, this.hitBomb, null, this)
 		
 		this.physics.add.overlap(this.player, this.stars, this.collectStar, null, this)
@@ -109,7 +113,8 @@ export default class GameScene extends Phaser.Scene
 			left:Phaser.Input.Keyboard.KeyCodes.A,
 			right:Phaser.Input.Keyboard.KeyCodes.D,
 			jump:Phaser.Input.Keyboard.KeyCodes.SPACE,
-			dash:Phaser.Input.MOUSE_DOWN
+			dash:Phaser.Input.MOUSE_DOWN,
+			reset:Phaser.Input.Keyboard.KeyCodes.R
 		});
 
 		this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
@@ -236,11 +241,24 @@ export default class GameScene extends Phaser.Scene
 		if (this.gameOver){
 			//Kollar om du int hört GameOver ljudet
 			if (alive == 1){
-			//Spelar upp GameOver ljudet
+			//Spelar upp GameOver ljudet och visar GameOver meddelandet
 			this.sound.playAudioSprite('sfx','death')
+			textGameOver = this.add.text(this.player.x - 145, 150, 'You got the ' + this.scoreLabel.text + '\n \n \n  Press R to Reset', { fontSize: '25px'});
 			}
 			//Förhindrar ljudet från att spela flera gånger
 			alive = 0
+			
+			if(this.cursors.reset.isDown){
+				velocityX = 0
+				velocityY = 0
+				accelerationX = 0
+				accelerationY = 0
+				alive = 1
+
+				this.scene.restart();
+			this.gameOver = false
+			}
+
 			return
 		}
 
@@ -256,6 +274,9 @@ export default class GameScene extends Phaser.Scene
 
 		//Kollar om du vänsterklickar, är i luften och har en dash att använda
 		if (dash == 1 && pointer.isDown && this.player.body.touching.down == false){
+
+			//Spelar upp Dash ljudet
+			this.sound.playAudioSprite('sfx', 'shot');
 
 			//Dasha mot muspekarens nuvarande position sett till bollens
 			velocityX = 2*(pointer.worldX - this.player.x)
@@ -312,9 +333,11 @@ export default class GameScene extends Phaser.Scene
 		//Kollar om du står på marken
 		if (this.player.body.touching.down){
 
-			//Låter dig dasha igen
-			dash = 1
-
+			//Låter dig dasha igen om musen har lyfts sedan du vart i luften
+			if(pointer.isDown == false){
+				dash = 1
+			}
+			
 			//Stoppar dig från att falla
 			accelerationY = pickupAccelerationY
 			velocityY = pickupVelocityY
