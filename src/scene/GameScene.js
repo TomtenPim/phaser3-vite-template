@@ -30,6 +30,7 @@ const gravity = 20;
 
 var text1;
 var text1ball;
+var text1seeker;
 var textGameOver;
 
 export default class GameScene extends Phaser.Scene {
@@ -54,9 +55,9 @@ export default class GameScene extends Phaser.Scene {
 		this.load.image(GROUNDMAIN_KEY, 'assets/platformStor.png')
 		this.load.image(STAR_KEY, 'assets/star.png')
 		this.load.image(BOMB_KEY, 'assets/bomb.png')
-		this.load.spritesheet(SEEKER_KEY, 
+		this.load.spritesheet(SEEKER_KEY,
 			'assets/seeker.png',
-			{ frameWidth:28, frameHeight:28}
+			{ frameWidth: 28, frameHeight: 28 }
 		)
 
 		this.load.spritesheet(DUDE_KEY,
@@ -98,6 +99,7 @@ export default class GameScene extends Phaser.Scene {
 
 		text1 = this.add.text(10, 10, '');
 		text1ball = this.add.text(500, 10, '');
+		text1seeker = this.add.text(250, 20, '');
 		textGameOver;
 
 		const platforms = this.createPlatforms()
@@ -238,55 +240,55 @@ export default class GameScene extends Phaser.Scene {
 
 		this.anims.create({
 			key: 'seeleft',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 0, end: 1 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 0, end: 1 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seeleftup',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 2, end: 3 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 2, end: 3 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seeup',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 4, end: 5 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 4, end: 5 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seerightup',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 6, end: 7 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 6, end: 7 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seeright',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 8, end: 9 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 8, end: 9 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seerigthdown',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 10, end: 11 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 10, end: 11 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seedown',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 12, end: 13 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 12, end: 13 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'seeleftdown',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 14, end: 15 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 14, end: 15 }),
 			frameRate: 20,
 			repeat: -1
 		})
 		this.anims.create({
 			key: 'spawn',
-			frames: this.anims.generateFrameNumbers(DUDE_KEY, { start: 0, end: 15 }),
+			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 0, end: 15 }),
 			frameRate: 20,
 			repeat: -1
 		})
@@ -496,8 +498,9 @@ export default class GameScene extends Phaser.Scene {
 			'y: ' + this.player.y,
 		]);
 
+		if (timer > 10 * 60) {
+			this.seeker.enableBody(false, 400, 300, true, true)
 
-		if (timer > 10*60) {
 
 			if (seekerVelocityX < 0 && this.seeker.x < this.player.x) {
 				seekerAccelerationX = 8
@@ -542,6 +545,53 @@ export default class GameScene extends Phaser.Scene {
 			this.seeker.setVelocityX(seekerVelocityX)
 			this.seeker.setVelocityY(seekerVelocityY)
 
+			//let seeAngle = (Math.acos((this.seeker.x - this.player.x) / (((this.seeker.x - this.player.x)^2 + (this.seeker.y - this.player.y)^2)^(1/2)))*57.2957796)
+
+			let seeAngle = (Math.atan(-(this.seeker.y - this.player.y) / (this.seeker.x - this.player.x))) * 57.2957796
+			if (seeAngle < 0) {
+				seeAngle += 180
+			}
+			if (this.player.y > this.seeker.y) {
+				seeAngle += 180
+			}
+
+
+
+			if (seeAngle < 22.5 || seeAngle > 337.5) {
+				this.seeker.anims.play('seeright', true)
+			}
+			else if (seeAngle < 67.5 && seeAngle > 22.5) {
+				this.seeker.anims.play('seerightup', true)
+			}
+			else if (seeAngle < 112.5 && seeAngle > 67.5) {
+				this.seeker.anims.play('seeup', true)
+			}
+			else if (seeAngle < 157.5 && seeAngle > 112.5) {
+				this.seeker.anims.play('seeleftup', true)
+			}
+			else if (seeAngle < 202.5 && seeAngle > 157.5) {
+				this.seeker.anims.play('seeleft', true)
+			}
+			else if (seeAngle < 247.5 && seeAngle > 202.5) {
+				this.seeker.anims.play('seeleftdown', true)
+			}
+			else if (seeAngle < 292.5 && seeAngle > 247.5) {
+				this.seeker.anims.play('seedown', true)
+			}
+			else if (seeAngle < 337.5 && seeAngle > 292.5) {
+				this.seeker.anims.play('seerightdown', true)
+			}
+			else { }
+
+			//Visar bollens possition
+			text1seeker.setText([
+				'AngleNum: ' + seeAngle,
+			]);
+
+
+		}
+		else {
+			this.seeker.disableBody(true, true)
 		}
 	}
 
