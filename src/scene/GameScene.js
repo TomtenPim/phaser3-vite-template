@@ -1,4 +1,4 @@
-import Phaser, { Cameras, Math } from 'phaser'
+import Phaser, { Cameras, } from 'phaser'
 import ScoreLabel from '../ui/ScoreLabel'
 import BombSpawner from './BombSpawner'
 
@@ -305,7 +305,7 @@ export default class GameScene extends Phaser.Scene {
 			repeat: -1
 		})
 		this.anims.create({
-			key: 'seerigthdown',
+			key: 'seerightdown',
 			frames: this.anims.generateFrameNumbers(SEEKER_KEY, { start: 10, end: 11 }),
 			frameRate: 20,
 			repeat: -1
@@ -534,18 +534,18 @@ export default class GameScene extends Phaser.Scene {
 			this.player.setVelocityX(velocityX)
 		}
 
-		//Visar musens possition
-		text1.setText([
-			'x: ' + this.player.x,
-			'y: ' + pointer.worldY,
-			'isDown: ' + pointer.isDown
-		]);
+		// //Visar musens possition
+		// text1.setText([
+		// 	'x: ' + this.player.x,
+		// 	'y: ' + pointer.worldY,
+		// 	'isDown: ' + pointer.isDown
+		// ]);
 
-		//Visar bollens possition
-		text1ball.setText([
-			'x: ' + this.player.x,
-			'y: ' + this.player.y,
-		]);
+		// //Visar bollens possition
+		// text1ball.setText([
+		// 	'x: ' + this.player.x,
+		// 	'y: ' + this.player.y,
+		// ]);
 
 		if (timer > 80.5 * 60) {
 			this.seeker.enableBody(false, 400, 300, true, true)
@@ -633,9 +633,9 @@ export default class GameScene extends Phaser.Scene {
 			else { }
 
 			//Visar bollens possition
-			text1seeker.setText([
-				'AngleNum: ' + seeAngle,
-			]);
+			// text1seeker.setText([
+			// 	'AngleNum: ' + seeAngle,
+			// ]);
 
 
 		}
