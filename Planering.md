@@ -34,24 +34,21 @@ Nästa gång ska jag färdigställa platforms- och stjärnlayout, konst, Seeker 
 
 ---------------------------------------------------------------------------------------------------------------
 
-Fredag 16/12 PM
+Fredag 16/12 Denna lektion fördigstälde jag platformarnas och stjärnornas layout, gjorde klart all konst som skulle användas och skapade en fungerande seeker
+
+nänsta gång ska jag redovisa mitt spel och skriva ett PM om det
 
 ---------------------------------------------------------------------------------------------------------------
 
 Tisdag 20/12 Redovisning
 
+Jag var sjuk >:(
 
-todo: 
-1. seekers
-2. mainplatform sprite
-3. final platform layout
 
 
 
 Tutorials:
-Jag har primärt följt:
+Till början använde jag mig av del 1-5 av tutorialen på https://blog.ourcade.co/posts/2020/make-first-phaser-3-game-modern-javascript-part1/ den gav mig en väldigt flexibel bas som jag sedan kunde arbeta vidare på utan att själv vara särskilt krånglig att följa heller.
 
-
-
-Har utöver det använt https://phaser.io/examples/v3 för hjälp med delar, starkt rekomenderat att man kollar in det om man stöter på
+Då jag väl var klar med grunden och stötte på problem så har jag använt https://phaser.io/examples/v3 för hjälp med delar, starkt rekomenderat att man kollar in det om man använder Phaser 3 och har kört fast. De ger väldigt bra exempel i kategoriserade områden bitar som ljud, input, renderer och textures, som i sin tur har underkategorier med exempel på hur man kan lösa problem. En nackdel är dock att man måste förstå vad man ska leta efter vilket inte alltid är enklast.
 
