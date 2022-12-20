@@ -153,7 +153,7 @@ export default class GameScene extends Phaser.Scene {
 			blendMode:Phaser.BlendModes.ADD,
 			emitZone:{ type: 'random', source: shaperain }
 		});
-		emitter.setFrequency(1, 50)
+		emitter.setFrequency(1, 30)
 	}
 
 	collectStar(player, star) {
