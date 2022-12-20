@@ -1,4 +1,4 @@
-import Phaser, { Cameras } from 'phaser'
+import Phaser, { Cameras, Math } from 'phaser'
 import ScoreLabel from '../ui/ScoreLabel'
 import BombSpawner from './BombSpawner'
 
@@ -9,6 +9,7 @@ const STAR_KEY = 'star'
 const BOMB_KEY = 'bomb'
 const SEEKER_KEY = 'seeker'
 const SKY_KEY = 'sky'
+const RAIN_KEY = 'rain'
 
 var velocityX = 0;
 var velocityY = 0;
@@ -52,18 +53,17 @@ export default class GameScene extends Phaser.Scene {
 	preload() {
 		this.load.image(SKY_KEY, 'assets/sky.png')
 		this.load.image(GROUND_KEY, 'assets/platform.png')
-		this.load.image(GROUNDMAIN_KEY, 'assets/platformStor.png')
+		this.load.image(GROUNDMAIN_KEY, 'assets/platformStorbrick.png')
 		this.load.image(STAR_KEY, 'assets/star.png')
 		this.load.image(BOMB_KEY, 'assets/bomb.png')
-		this.load.spritesheet(SEEKER_KEY,
-			'assets/seeker.png',
-			{ frameWidth: 28, frameHeight: 28 }
-		)
+		this.load.image(RAIN_KEY, 'assets/rain.png')
+		this.load.spritesheet(SEEKER_KEY, 'assets/seeker.png', { frameWidth: 28, frameHeight: 28 })
+		this.load.spritesheet(DUDE_KEY, 'assets/dudeball.png', { frameWidth: 32, frameHeight: 31 })
 
-		this.load.spritesheet(DUDE_KEY,
-			'assets/dudeball.png',
-			{ frameWidth: 32, frameHeight: 31 }
-		)
+		// this.load.spritesheet(GROUNDMAIN_KEY,
+		// 	'assets/platformStor.png',
+		// 	{ frameWidth: 800, frameHeight: 256 }
+		// )
 
 		this.load.audioSprite(
 			'sfx',
@@ -85,10 +85,12 @@ export default class GameScene extends Phaser.Scene {
 	//Skapar objekt som visas och kan interageras med
 	create() {
 		this.sound.playAudioSprite('music', 'music', { volume: 0.6 })
-		this.sound.volume = 0.5
+		this.sound.volume = 0.3
 
 		this.cameras.main.setBounds(-1200, 0, 3200, 600);
 		this.physics.world.setBounds(-1200, -100, 3200, 800);
+
+
 
 		this.createSky(-1200, 300)
 		this.createSky(-400, 300)
@@ -103,7 +105,7 @@ export default class GameScene extends Phaser.Scene {
 		textGameOver;
 
 		const platforms = this.createPlatforms()
-		const mainPlatform = this.createMainPlatform()
+		this.mainPlatform = this.createMainPlatform()
 		this.player = this.createPlayer()
 		this.stars = this.createStars()
 		this.seeker = this.createSeeker()
@@ -115,12 +117,12 @@ export default class GameScene extends Phaser.Scene {
 
 		this.physics.add.collider(this.player, platforms)
 		this.physics.add.collider(this.stars, platforms)
-		this.physics.add.collider(this.player, mainPlatform)
-		this.physics.add.collider(this.stars, mainPlatform)
+		this.physics.add.collider(this.player, this.mainPlatform)
+		this.physics.add.collider(this.stars, this.mainPlatform)
 		this.physics.add.collider(bombsGroup, platforms)
-		this.physics.add.collider(bombsGroup, mainPlatform)
+		this.physics.add.collider(bombsGroup, this.mainPlatform)
 		this.physics.add.collider(this.seeker, platforms)
-		this.physics.add.collider(this.seeker, mainPlatform)
+		this.physics.add.collider(this.seeker, this.mainPlatform)
 		this.physics.add.collider(this.player, bombsGroup, this.hitBomb, null, this)
 		this.physics.add.collider(this.player, this.seeker, this.hitSeeker, null, this)
 
@@ -138,6 +140,20 @@ export default class GameScene extends Phaser.Scene {
 			});
 
 		this.cameras.main.startFollow(this.player, true, 0.05, 0.05);
+
+
+		var shaperain = new Phaser.Geom.Line(-1200, 400, 3200, -2000);
+		var particles = this.add.particles(RAIN_KEY);
+		particles.angle = 30
+		var emitter = particles.createEmitter({
+			angle:90,
+			alpha:0.4,
+			speed:400,
+			lifespan:2500,
+			blendMode:Phaser.BlendModes.ADD,
+			emitZone:{ type: 'random', source: shaperain }
+		});
+		emitter.setFrequency(1, 50)
 	}
 
 	collectStar(player, star) {
@@ -173,10 +189,30 @@ export default class GameScene extends Phaser.Scene {
 
 	createMainPlatform() {
 		const mainPlatform = this.physics.add.staticGroup()
-
-		mainPlatform.create(400, 568, GROUNDMAIN_KEY).setScale(1).refreshBody()
+		mainPlatform.create(400, 730, GROUNDMAIN_KEY)
 
 		return mainPlatform
+
+		// this.anims.create({
+		// 	key: 'platleft',
+		// 	frames: this.anims.generateFrameNumbers(GROUNDMAIN_KEY, { start: 0, end: 0 }),
+		// 	frameRate: 20,
+		// 	repeat: -1
+		// })
+
+		// this.anims.create({
+		// 	key: 'platcenter',
+		// 	frames: this.anims.generateFrameNumbers(GROUNDMAIN_KEY, { start: 1, end: 1 }),
+		// 	frameRate: 20,
+		// 	repeat: -1
+		// })
+
+		// this.anims.create({
+		// 	key: 'platright',
+		// 	frames: this.anims.generateFrameNumbers(GROUNDMAIN_KEY, { start: 2, end: 2 }),
+		// 	frameRate: 20,
+		// 	repeat: -1
+		// })
 	}
 
 	createSky(x, y) {
@@ -301,8 +337,19 @@ export default class GameScene extends Phaser.Scene {
 		let pointer = this.input.activePointer;
 		timer += 1
 
+		// if (this.player.x > 700) {
+		// 	this.mainPlatform.anims.play('platright', true)
+		// }
+		// else if (this.player.x < 100) {
+		// 	this.mainPlatform.anims.play('platleft', true)
+		// }
+		// else {
+		// 	this.mainPlatform.anims.play('platcenter', true)
+		// }
+
+
 		//Kolla om du fallit av banan
-		if (this.player.y > 600) {
+		if (this.player.y > 610) {
 
 			this.physics.pause()
 
@@ -357,6 +404,8 @@ export default class GameScene extends Phaser.Scene {
 
 			//Spelar upp Dash ljudet
 			this.sound.playAudioSprite('sfx', 'shot');
+
+			this.cameras.main.shake(100, 0.015, true);
 
 			//Dasha mot muspekarens nuvarande position sett till bollens
 			velocityX = 2 * (pointer.worldX - this.player.x)
@@ -487,7 +536,7 @@ export default class GameScene extends Phaser.Scene {
 
 		//Visar musens possition
 		text1.setText([
-			'x: ' + pointer.worldX,
+			'x: ' + this.player.x,
 			'y: ' + pointer.worldY,
 			'isDown: ' + pointer.isDown
 		]);
@@ -498,7 +547,7 @@ export default class GameScene extends Phaser.Scene {
 			'y: ' + this.player.y,
 		]);
 
-		if (timer > 10 * 60) {
+		if (timer > 80.5 * 60) {
 			this.seeker.enableBody(false, 400, 300, true, true)
 
 
