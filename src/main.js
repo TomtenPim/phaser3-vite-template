@@ -7,6 +7,7 @@ const config = {
 	type: Phaser.AUTO,
 	parent: 'app',
 	width: 800,
+	fps: { forceSetTimeOut: true, target: 60 },
 	height: 600,
 	physics: {
 		default: 'arcade',

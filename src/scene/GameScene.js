@@ -36,7 +36,7 @@ var textGameOver;
 
 export default class GameScene extends Phaser.Scene {
 	constructor() {
-		super('game-scene')
+		super('GameScene')
 
 		this.player = undefined
 		this.cursors = undefined
